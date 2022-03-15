@@ -1,9 +1,8 @@
-
-import { DarkModeSwitch } from "../components/DarkModeSwitch";
+import Navbar from "../components/navbar";
 
 const Index = () => (
   <div>
-    <DarkModeSwitch />
+    <Navbar/>
   </div>
 );
 

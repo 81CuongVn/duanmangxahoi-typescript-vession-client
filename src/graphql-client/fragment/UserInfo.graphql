@@ -1,0 +1,8 @@
+fragment userInfo on User {
+  _id
+  email
+  username
+  avatar
+  role
+  likes
+}
