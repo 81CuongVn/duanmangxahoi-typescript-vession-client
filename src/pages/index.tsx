@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import Navbar from "./../components/Navbar";
 import { GetPostsDocument } from "../generated/graphql";
 import { addApolloState, initializeApollo } from "../lib/apolloClient";
 import { useGetPostsQuery } from './../generated/graphql';

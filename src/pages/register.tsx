@@ -11,7 +11,7 @@ import {
 } from '../generated/graphql'
 import { mapFieldError } from './../helper/mapFieldError'
 import { useRouter } from 'next/dist/client/router'
-import Navbar from '../components/Navbar'
+import Navbar from './../components/Navbar'
 import { useCheckAuth } from '../util/useCheckAuth'
 
 const Register = () => {
