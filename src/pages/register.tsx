@@ -1,26 +1,60 @@
 import React from 'react'
-import { Formik, Form , FormikHelpers} from 'formik'
+import { Formik, Form, FormikHelpers } from 'formik'
 import Wrapper from '../components/Wrapper'
 import InputField from '../components/InputField'
-import { Button } from '@chakra-ui/react'
-import { ResisterInput, useRegisterMutation } from '../generated/graphql'
-import { mapFieldError } from './../helper/mapFieldError';
+import { Button, Flex, Spinner, useToast } from '@chakra-ui/react'
+import {
+  ResisterInput,
+  useRegisterMutation,
+  MeDocument,
+  MeQuery,
+} from '../generated/graphql'
+import { mapFieldError } from './../helper/mapFieldError'
 import { useRouter } from 'next/dist/client/router'
+import Navbar from '../components/Navbar'
+import { useCheckAuth } from '../util/useCheckAuth'
 
 const Register = () => {
   const router = useRouter()
+  const toast = useToast()
   const [registerUser, { error, data }] = useRegisterMutation()
-  const OnSubmitForm = async (value: ResisterInput, formikHelpers: FormikHelpers<ResisterInput>) => {
-    const response =  await registerUser({
+
+  const { data: authData, loading: authLoading } = useCheckAuth()
+  const OnSubmitForm = async (
+    value: ResisterInput,
+    formikHelpers: FormikHelpers<ResisterInput>
+  ) => {
+    const response = await registerUser({
       variables: {
         registerInput: value,
+      },
+      update(cache, { data }) {
+        // const meData = cache.readQuery({
+        //     query: MeDocument
+        // })
+        // console.log("me data" , meData)
+        if (data?.register.success && data.register.user) {
+          cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: {
+              me: data.register.user,
+            },
+          })
+        }
       },
     })
     if (response?.data?.register.error) {
       formikHelpers.setErrors(mapFieldError(response.data?.register.error))
     } else if (response.data?.register.user) {
       // register success
-      router.push("/")
+      toast({
+        title: 'xin chào bạn chào mừng bạn đã quay trở lại',
+        description: `${response.data?.register.user.username}`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+      router.push('/')
     }
   }
   const initialValues: ResisterInput = {
@@ -33,39 +67,53 @@ const Register = () => {
   }
 
   return (
-    <Wrapper>
-      <Formik initialValues={initialValues} onSubmit={OnSubmitForm}>
-        {({ isSubmitting }) => (
-          <Form>
-            <InputField
-              label='type your user'
-              name='username'
-              placeholder='example : fpi open the door'
-            />
-            <InputField
-              label='type your password'
-              name='password'
-              placeholder='type your password'
-              type='password'
-            />
-            <InputField
-              label='type your email'
-              name='email'
-              placeholder='type your email'
-              type='email'
-            />
-            <Button
-              type='submit'
-              colorScheme='teal'
-              mt={4}
-              isLoading={isSubmitting}
-            >
-              Register
-            </Button>
-          </Form>
-        )}
-      </Formik>
-    </Wrapper>
+    <>
+      {authLoading || (!authLoading && authData?.me) ? (
+        <Flex justifyContent='center' alignItems='center' minH='100vh'>
+          <Spinner />
+        </Flex>
+      ) : (
+        <>
+          <Navbar />
+          <Wrapper>
+            <Formik initialValues={initialValues} onSubmit={OnSubmitForm}>
+              {({ isSubmitting }) => (
+                <Form>
+                  <InputField
+                    label='type your user'
+                    name='username'
+                    placeholder='example : fpi open the door'
+                  />
+                  <InputField
+                    label='type your password'
+                    name='password'
+                    placeholder='type your password'
+                    type='password'
+                  />
+                  <InputField
+                    label='type your email'
+                    name='email'
+                    placeholder='type your email'
+                    type='email'
+                  />
+                  <Button
+                    mx='auto'
+                    type='submit'
+                    colorScheme='teal'
+                    variant='outline'
+                    mt={4}
+                    isLoading={isSubmitting}
+                    w='100%'
+                  >
+                    Register
+                  </Button>
+                </Form>
+              )}
+            </Formik>
+          </Wrapper>
+        </>
+      )}
+    </>
   )
 }
 

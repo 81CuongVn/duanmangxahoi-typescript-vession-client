@@ -1,0 +1,14 @@
+query GetPosts {
+  getPosts {
+    code
+    success
+    message
+    posts {
+      ...postInfo
+    }
+    errors {
+      message
+      field
+    }
+  }
+}

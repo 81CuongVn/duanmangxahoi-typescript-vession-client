@@ -1,43 +1,86 @@
 import React from 'react'
 import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react'
-import { DarkModeSwitch } from './DarkModeSwitch'
 import NextLink from 'next/link'
-import { useMeQuery } from './../generated/graphql'
+import {
+  MeDocument,
+  MeQuery,
+  useLogoutMutation,
+  useMeQuery,
+} from '../generated/graphql'
+import { useRouter } from 'next/dist/client/router'
 
 const Navbar = () => {
-  const { data, error, loading } = useMeQuery()
+  const { data, loading: useMeQueryLoading } = useMeQuery()
+  const router = useRouter()
+  const [logoutUser, { loading: useLogoutMutationLoading }] =
+    useLogoutMutation()
+  const isInLoginOrRegisterPage =
+    router.route === '/login' || router.route == '/register'
   let body
-  if (loading) {
+  if (useMeQueryLoading) {
     body = null
   } else if (!data?.me) {
     // user is login
+    if (!isInLoginOrRegisterPage)
+      body = (
+        <>
+          <NextLink href='/login'>
+            <Link mr={2}>login</Link>
+          </NextLink>
+          {'/'}
+          <NextLink href='/register'>
+            <Link>resigner</Link>
+          </NextLink>
+        </>
+      )
+  } else if (!isInLoginOrRegisterPage) {
+    const LogoutUser = async () => {
+      await logoutUser({
+        update(cache, { data }) {
+          if (data) {
+            cache.writeQuery<MeQuery>({
+              query: MeDocument,
+              data: {
+                me: null,
+              },
+            })
+          }
+        },
+      })
+    }
     body = (
       <>
-        <NextLink href='/login'>
-          <Link mr={2}>login</Link>
-        </NextLink>
-        <NextLink href='/register'>
-          <Link>resigner</Link>
-        </NextLink>
+        <Button onClick={LogoutUser} isLoading={useLogoutMutationLoading}>
+          logout
+        </Button>
       </>
     )
-  }else {
-      body = (
-          <>
-          <Button>logout</Button>
-          </>
-      )
   }
   return (
     <Box bg='tan' p={4}>
-      <Flex maxW={2000} justifyContent='space-between' m='auto' align='center'>
-        <NextLink href='/'>
-          <Heading>tên gì nhỉ kệ đi</Heading>
-        </NextLink>
-        <Box>{body}</Box>
+      <Flex
+        maxW='100%'
+        align='center'
+        textAlign='center'
+        justifyContent='space-between'
+      >
         <Box>
-          <DarkModeSwitch />
+          <NextLink href='/'>
+            <Heading>Tên gì nhỉ kệ đi</Heading>
+          </NextLink>
         </Box>
+        <Box>
+          <NextLink href='/'>Home</NextLink>
+        </Box>
+        {data?.me && (
+          <Box>
+            <NextLink href='/'>Your Profile</NextLink>
+          </Box>
+        )}
+        <Box>
+          <NextLink href='/'>Thông báo</NextLink>
+        </Box>
+        <Box>{body}</Box>
       </Flex>
     </Box>
   )

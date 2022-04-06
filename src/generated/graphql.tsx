@@ -55,7 +55,7 @@ export type CreatePostMutationResponse = IMutationResponse & {
   code: Scalars['Float'];
   errors?: Maybe<Array<FieldError>>;
   message?: Maybe<Scalars['String']>;
-  post?: Maybe<Array<Post>>;
+  posts?: Maybe<Array<Post>>;
   success: Scalars['Boolean'];
 };
 
@@ -71,15 +71,6 @@ export type GetLikeInfoResponse = IMutationResponse & {
   errors?: Maybe<Array<FieldError>>;
   like?: Maybe<Array<LikeModel>>;
   message?: Maybe<Scalars['String']>;
-  success: Scalars['Boolean'];
-};
-
-export type GetPostQueryResponse = IMutationResponse & {
-  __typename?: 'GetPostQueryResponse';
-  code: Scalars['Float'];
-  errors?: Maybe<Array<FieldError>>;
-  message?: Maybe<Scalars['String']>;
-  posts?: Maybe<Array<Post>>;
   success: Scalars['Boolean'];
 };
 
@@ -114,15 +105,16 @@ export type Mutation = {
   changePasswordUser: UserMutationResponse;
   createAccountHaveRole: UserMutationResponse;
   createPost: CreatePostMutationResponse;
-  deletePost: UpdatePostMutationResponse;
+  deletePost: CreatePostMutationResponse;
   getAuthorInfo: UserMutationResponse;
   getMyProfile: UserMutationResponse;
-  likePost: UpdatePostMutationResponse;
+  getUser: UserMutationResponse;
+  likePost: CreatePostMutationResponse;
   login: UserMutationResponse;
   logout: Scalars['Boolean'];
   register: UserMutationResponse;
   removeRoleForUser: UserMutationResponse;
-  updatePost: UpdatePostMutationResponse;
+  updatePost: CreatePostMutationResponse;
 };
 
 
@@ -219,15 +211,15 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  GetAlertPost?: Maybe<GetPostQueryResponse>;
+  GetAlertPost?: Maybe<CreatePostMutationResponse>;
   GetCategory?: Maybe<CategoryResponse>;
   GetLikeInfo?: Maybe<GetLikeInfoResponse>;
-  GetPostByCategory?: Maybe<GetPostQueryResponse>;
+  GetPostByCategory?: Maybe<CreatePostMutationResponse>;
   getPostById?: Maybe<GetPostByIdResponse>;
-  getPosts?: Maybe<GetPostQueryResponse>;
-  getUserPost?: Maybe<GetPostQueryResponse>;
+  getPosts?: Maybe<CreatePostMutationResponse>;
+  getUserPost?: Maybe<CreatePostMutationResponse>;
   hello: Scalars['String'];
-  me: User;
+  me?: Maybe<User>;
 };
 
 
@@ -249,15 +241,6 @@ export type UpdatePostInput = {
   category?: InputMaybe<Scalars['String']>;
   content?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
-};
-
-export type UpdatePostMutationResponse = IMutationResponse & {
-  __typename?: 'UpdatePostMutationResponse';
-  code: Scalars['Float'];
-  errors?: Maybe<Array<FieldError>>;
-  message?: Maybe<Scalars['String']>;
-  post?: Maybe<Array<Post>>;
-  success: Scalars['Boolean'];
 };
 
 export type User = {
@@ -307,6 +290,8 @@ export enum Role {
   User = 'user'
 }
 
+export type PostInfoFragment = { __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number };
+
 export type UserInfoFragment = { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null };
 
 export type ErrorFieldFragment = { __typename?: 'FieldError', field: string, message: string };
@@ -320,6 +305,11 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, user?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null, error?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
+
 export type RegisterMutationVariables = Exact<{
   registerInput: ResisterInput;
 }>;
@@ -327,11 +317,33 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, user?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null, error?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
 
+export type GetPostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPostsQuery = { __typename?: 'Query', getPosts?: { __typename?: 'CreatePostMutationResponse', code: number, success: boolean, message?: string | null, posts?: Array<{ __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number }> | null, errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null } | null };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null };
 
+export const PostInfoFragmentDoc = gql`
+    fragment postInfo on Post {
+  title
+  content
+  author
+  photo
+  createdAt
+  updatedAt
+  _id
+  category
+  views
+  comments
+  isAlert
+  likes
+  likeNumber
+}
+    `;
 export const UserInfoFragmentDoc = gql`
     fragment userInfo on User {
   _id
@@ -395,6 +407,36 @@ export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginM
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const RegisterDocument = gql`
     mutation Register($registerInput: resisterInput!) {
   register(registerInput: $registerInput) {
@@ -428,6 +470,49 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const GetPostsDocument = gql`
+    query GetPosts {
+  getPosts {
+    code
+    success
+    message
+    posts {
+      ...postInfo
+    }
+    errors {
+      message
+      field
+    }
+  }
+}
+    ${PostInfoFragmentDoc}`;
+
+/**
+ * __useGetPostsQuery__
+ *
+ * To run a query within a React component, call `useGetPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPostsQuery(baseOptions?: Apollo.QueryHookOptions<GetPostsQuery, GetPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostsQuery, GetPostsQueryVariables>(GetPostsDocument, options);
+      }
+export function useGetPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostsQuery, GetPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostsQuery, GetPostsQueryVariables>(GetPostsDocument, options);
+        }
+export type GetPostsQueryHookResult = ReturnType<typeof useGetPostsQuery>;
+export type GetPostsLazyQueryHookResult = ReturnType<typeof useGetPostsLazyQuery>;
+export type GetPostsQueryResult = Apollo.QueryResult<GetPostsQuery, GetPostsQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

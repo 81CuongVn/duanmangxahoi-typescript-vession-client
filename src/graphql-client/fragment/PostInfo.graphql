@@ -1,0 +1,15 @@
+fragment postInfo on Post {
+  title
+  content
+  author
+  photo
+  createdAt
+  updatedAt
+  _id
+  category
+  views
+  comments
+  isAlert
+  likes
+  likeNumber
+}
