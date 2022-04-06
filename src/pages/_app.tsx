@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps, router }: AppProps) {
     <ApolloProvider client={apolloClient}>
       <ChakraProvider resetCSS theme={theme}>
         <Component {...pageProps} />
-        <Box alignContent='end' w="100vh">
+        <Box mt="77vh">
           <DarkModeSwitch />
         </Box>
       </ChakraProvider>
