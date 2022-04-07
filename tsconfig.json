@@ -22,7 +22,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": "."
+    "baseUrl": "./src/"
   },
   "include": [
     "next-env.d.ts",
