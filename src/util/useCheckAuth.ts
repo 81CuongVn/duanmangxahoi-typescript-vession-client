@@ -7,7 +7,10 @@ export const useCheckAuth = () => {
   const { data, loading } = useMeQuery()
   useEffect(() => {
     const isInLoginOrRegisterPage =
-      router.route === '/login' || router.route == '/register'
+      router.route === '/login' ||
+      router.route == '/register' ||
+      router.route == '/forgot-password' ||
+      router.route == '/change-password'
     if (!loading && data?.me && isInLoginOrRegisterPage) {
       router.replace('/')
     }

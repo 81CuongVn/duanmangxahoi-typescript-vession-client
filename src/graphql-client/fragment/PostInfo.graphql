@@ -12,4 +12,5 @@ fragment postInfo on Post {
   isAlert
   likes
   likeNumber
+  contentSnippet
 }

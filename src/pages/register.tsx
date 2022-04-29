@@ -2,7 +2,7 @@ import React from 'react'
 import { Formik, Form, FormikHelpers } from 'formik'
 import Wrapper from '../components/Wrapper'
 import InputField from '../components/InputField'
-import { Button, Flex, Spinner, useToast } from '@chakra-ui/react'
+import { Button, Flex, Spinner, useToast , Box,Link} from '@chakra-ui/react'
 import {
   ResisterInput,
   useRegisterMutation,
@@ -13,6 +13,9 @@ import { mapFieldError } from './../helper/mapFieldError'
 import { useRouter } from 'next/dist/client/router'
 import Navbar from '../components/navbar'
 import { useCheckAuth } from '../util/useCheckAuth'
+import NextLink from 'next/link'
+import Layout from './../components/Layout';
+
 
 const Register = () => {
   const router = useRouter()
@@ -67,14 +70,13 @@ const Register = () => {
   }
 
   return (
-    <>
+    <Layout>
       {authLoading || (!authLoading && authData?.me) ? (
         <Flex justifyContent='center' alignItems='center' minH='100vh'>
           <Spinner />
         </Flex>
       ) : (
         <>
-          <Navbar />
           <Wrapper>
             <Formik initialValues={initialValues} onSubmit={OnSubmitForm}>
               {({ isSubmitting }) => (
@@ -96,6 +98,18 @@ const Register = () => {
                     placeholder='type your email'
                     type='email'
                   />
+                  <Box mt={2}>
+                    <Flex>
+                      <NextLink href='/forgot-password' passHref>
+                        <Link ml='auto'>Forgot Password</Link>
+                      </NextLink>
+                    </Flex>
+                    <Flex>
+                      <NextLink href='/login' passHref>
+                        <Link ml='auto'>Click here to login</Link>
+                      </NextLink>
+                    </Flex>
+                  </Box>
                   <Button
                     mx='auto'
                     type='submit'
@@ -113,7 +127,7 @@ const Register = () => {
           </Wrapper>
         </>
       )}
-    </>
+    </Layout>
   )
 }
 

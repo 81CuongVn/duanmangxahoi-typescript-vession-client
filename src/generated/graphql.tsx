@@ -38,9 +38,13 @@ export type CategoryResponse = IMutationResponse & {
   success: Scalars['Boolean'];
 };
 
-export type ChangePasswordInputType = {
+export type ChangePasswordAfterLoginInputType = {
   newPassword: Scalars['String'];
   oldPassword: Scalars['String'];
+};
+
+export type ChangePasswordInputType = {
+  NewPassword: Scalars['String'];
 };
 
 export type CreatePostInput = {
@@ -63,6 +67,10 @@ export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
   message: Scalars['String'];
+};
+
+export type ForgotPasswordInput = {
+  email: Scalars['String'];
 };
 
 export type GetLikeInfoResponse = IMutationResponse & {
@@ -102,10 +110,12 @@ export type Mutation = {
   DeleteAlertPost: CreatePostMutationResponse;
   UpdateAlertPost: CreatePostMutationResponse;
   addRoleForUser: UserMutationResponse;
-  changePasswordUser: UserMutationResponse;
+  changePassword: UserMutationResponse;
+  changePasswordUserWasLogin: UserMutationResponse;
   createAccountHaveRole: UserMutationResponse;
   createPost: CreatePostMutationResponse;
   deletePost: CreatePostMutationResponse;
+  forgotPassword: Scalars['Boolean'];
   getAuthorInfo: UserMutationResponse;
   getMyProfile: UserMutationResponse;
   getUser: UserMutationResponse;
@@ -139,8 +149,15 @@ export type MutationAddRoleForUserArgs = {
 };
 
 
-export type MutationChangePasswordUserArgs = {
+export type MutationChangePasswordArgs = {
   changePasswordInput: ChangePasswordInputType;
+  token: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+
+export type MutationChangePasswordUserWasLoginArgs = {
+  changePasswordInput: ChangePasswordAfterLoginInputType;
 };
 
 
@@ -157,6 +174,11 @@ export type MutationCreatePostArgs = {
 
 export type MutationDeletePostArgs = {
   id: Scalars['String'];
+};
+
+
+export type MutationForgotPasswordArgs = {
+  forgotPasswordInput: ForgotPasswordInput;
 };
 
 
@@ -198,6 +220,7 @@ export type Post = {
   category: Scalars['String'];
   comments?: Maybe<Array<Scalars['String']>>;
   content: Scalars['String'];
+  contentSnippet: Scalars['String'];
   createdAt: Scalars['DateTime'];
   isAlert: Scalars['Boolean'];
   keyword?: Maybe<Array<Scalars['String']>>;
@@ -235,6 +258,11 @@ export type QueryGetPostByCategoryArgs = {
 
 export type QueryGetPostByIdArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryGetPostsArgs = {
+  limit?: InputMaybe<Scalars['Float']>;
 };
 
 export type UpdatePostInput = {
@@ -290,13 +318,29 @@ export enum Role {
   User = 'user'
 }
 
-export type PostInfoFragment = { __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number };
+export type PostInfoFragment = { __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string };
 
 export type UserInfoFragment = { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null };
 
 export type ErrorFieldFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type UserMutationResponseFragment = { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, user?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null, error?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null };
+
+export type ChangePasswordMutationVariables = Exact<{
+  userId: Scalars['String'];
+  token: Scalars['String'];
+  changePasswordInput: ChangePasswordInputType;
+}>;
+
+
+export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, user?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null, error?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type ForgotPasswordMutationVariables = Exact<{
+  forgotPasswordInput: ForgotPasswordInput;
+}>;
+
+
+export type ForgotPasswordMutation = { __typename?: 'Mutation', forgotPassword: boolean };
 
 export type LoginMutationVariables = Exact<{
   loginInput: LoginInput;
@@ -320,7 +364,7 @@ export type RegisterMutation = { __typename?: 'Mutation', register: { __typename
 export type GetPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', getPosts?: { __typename?: 'CreatePostMutationResponse', code: number, success: boolean, message?: string | null, posts?: Array<{ __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number }> | null, errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null } | null };
+export type GetPostsQuery = { __typename?: 'Query', getPosts?: { __typename?: 'CreatePostMutationResponse', code: number, success: boolean, message?: string | null, posts?: Array<{ __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string }> | null, errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -342,6 +386,7 @@ export const PostInfoFragmentDoc = gql`
   isAlert
   likes
   likeNumber
+  contentSnippet
 }
     `;
 export const UserInfoFragmentDoc = gql`
@@ -374,6 +419,76 @@ export const UserMutationResponseFragmentDoc = gql`
 }
     ${UserInfoFragmentDoc}
 ${ErrorFieldFragmentDoc}`;
+export const ChangePasswordDocument = gql`
+    mutation ChangePassword($userId: String!, $token: String!, $changePasswordInput: ChangePasswordInputType!) {
+  changePassword(
+    userId: $userId
+    token: $token
+    changePasswordInput: $changePasswordInput
+  ) {
+    ...userMutationResponse
+  }
+}
+    ${UserMutationResponseFragmentDoc}`;
+export type ChangePasswordMutationFn = Apollo.MutationFunction<ChangePasswordMutation, ChangePasswordMutationVariables>;
+
+/**
+ * __useChangePasswordMutation__
+ *
+ * To run a mutation, you first call `useChangePasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangePasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changePasswordMutation, { data, loading, error }] = useChangePasswordMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      token: // value for 'token'
+ *      changePasswordInput: // value for 'changePasswordInput'
+ *   },
+ * });
+ */
+export function useChangePasswordMutation(baseOptions?: Apollo.MutationHookOptions<ChangePasswordMutation, ChangePasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, options);
+      }
+export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
+export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
+export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
+export const ForgotPasswordDocument = gql`
+    mutation ForgotPassword($forgotPasswordInput: ForgotPasswordInput!) {
+  forgotPassword(forgotPasswordInput: $forgotPasswordInput)
+}
+    `;
+export type ForgotPasswordMutationFn = Apollo.MutationFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
+
+/**
+ * __useForgotPasswordMutation__
+ *
+ * To run a mutation, you first call `useForgotPasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useForgotPasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [forgotPasswordMutation, { data, loading, error }] = useForgotPasswordMutation({
+ *   variables: {
+ *      forgotPasswordInput: // value for 'forgotPasswordInput'
+ *   },
+ * });
+ */
+export function useForgotPasswordMutation(baseOptions?: Apollo.MutationHookOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, options);
+      }
+export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>;
+export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>;
+export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginInput: LoginInput!) {
   login(loginInput: $loginInput) {

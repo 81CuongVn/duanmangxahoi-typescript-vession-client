@@ -13,6 +13,7 @@ import {
   Flex,
   Heading,
   Spinner,
+  Link,
 } from '@chakra-ui/react'
 import { LoginInput, MeDocument, useLoginMutation } from '../generated/graphql'
 import { mapFieldError } from './../helper/mapFieldError'
@@ -20,6 +21,8 @@ import { useRouter } from 'next/dist/client/router'
 import Navbar from '../components/navbar'
 import { useCheckAuth } from './../util/useCheckAuth'
 import { useToast } from '@chakra-ui/react'
+import NextLink from 'next/link'
+import Layout from './../components/Layout';
 
 const Login = () => {
   const router = useRouter()
@@ -82,14 +85,13 @@ const Login = () => {
   }
 
   return (
-    <>
+    <Layout>
       {authLoading || (!authLoading && authData?.me) ? (
         <Flex justifyContent='center' alignItems='center' minH='100vh'>
           <Spinner />
         </Flex>
       ) : (
         <>
-          <Navbar />
           {errorMessage && (
             <Box maxW='500px' w='100%' mt={8} mx='auto'>
               <Alert status='error'>
@@ -107,7 +109,7 @@ const Login = () => {
               </Alert>
             </Box>
           )}
-        
+
           <Wrapper>
             <Box textAlign='center'>
               <Heading>Login</Heading>
@@ -126,6 +128,18 @@ const Login = () => {
                     placeholder='type your password'
                     type='password'
                   />
+                  <Box mt={2}>
+                    <Flex>
+                      <NextLink href='/forgot-password' passHref>
+                        <Link ml='auto'>Forgot Password</Link>
+                      </NextLink>
+                    </Flex>
+                    <Flex>
+                      <NextLink href='/register' passHref>
+                        <Link ml='auto'>Click here to create account</Link>
+                      </NextLink>
+                    </Flex>
+                  </Box>
                   <Button
                     mx='auto'
                     type='submit'
@@ -143,7 +157,7 @@ const Login = () => {
           </Wrapper>
         </>
       )}
-    </>
+    </Layout>
   )
 }
 
