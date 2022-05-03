@@ -1,7 +1,6 @@
 fragment postInfo on Post {
   title
   content
-  author
   photo
   createdAt
   updatedAt
@@ -13,4 +12,7 @@ fragment postInfo on Post {
   likes
   likeNumber
   contentSnippet
+  author {
+    ...userInfo
+  }
 }

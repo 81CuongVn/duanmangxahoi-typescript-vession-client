@@ -51,6 +51,7 @@ export type CreatePostInput = {
   /** default is cộng đồng */
   category?: InputMaybe<Scalars['String']>;
   content: Scalars['String'];
+  isAlert?: InputMaybe<Scalars['Boolean']>;
   title: Scalars['String'];
 };
 
@@ -106,9 +107,6 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  CreateAlertPost: CreatePostMutationResponse;
-  DeleteAlertPost: CreatePostMutationResponse;
-  UpdateAlertPost: CreatePostMutationResponse;
   addRoleForUser: UserMutationResponse;
   changePassword: UserMutationResponse;
   changePasswordUserWasLogin: UserMutationResponse;
@@ -125,22 +123,6 @@ export type Mutation = {
   register: UserMutationResponse;
   removeRoleForUser: UserMutationResponse;
   updatePost: CreatePostMutationResponse;
-};
-
-
-export type MutationCreateAlertPostArgs = {
-  data: CreatePostInput;
-};
-
-
-export type MutationDeleteAlertPostArgs = {
-  id: Scalars['String'];
-};
-
-
-export type MutationUpdateAlertPostArgs = {
-  data: UpdatePostInput;
-  id: Scalars['String'];
 };
 
 
@@ -216,7 +198,8 @@ export type MutationUpdatePostArgs = {
 export type Post = {
   __typename?: 'Post';
   _id: Scalars['String'];
-  author: Scalars['String'];
+  author: User;
+  authorId: Scalars['String'];
   category: Scalars['String'];
   comments?: Maybe<Array<Scalars['String']>>;
   content: Scalars['String'];
@@ -268,6 +251,7 @@ export type QueryGetPostsArgs = {
 export type UpdatePostInput = {
   category?: InputMaybe<Scalars['String']>;
   content?: InputMaybe<Scalars['String']>;
+  isAlert?: InputMaybe<Scalars['Boolean']>;
   title?: InputMaybe<Scalars['String']>;
 };
 
@@ -318,7 +302,7 @@ export enum Role {
   User = 'user'
 }
 
-export type PostInfoFragment = { __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string };
+export type PostInfoFragment = { __typename?: 'Post', title: string, content: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string, author: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } };
 
 export type UserInfoFragment = { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null };
 
@@ -364,18 +348,27 @@ export type RegisterMutation = { __typename?: 'Mutation', register: { __typename
 export type GetPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', getPosts?: { __typename?: 'CreatePostMutationResponse', code: number, success: boolean, message?: string | null, posts?: Array<{ __typename?: 'Post', title: string, content: string, author: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string }> | null, errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null } | null };
+export type GetPostsQuery = { __typename?: 'Query', getPosts?: { __typename?: 'CreatePostMutationResponse', code: number, success: boolean, message?: string | null, posts?: Array<{ __typename?: 'Post', title: string, content: string, photo: Array<string>, createdAt: any, updatedAt: any, _id: string, category: string, views: number, comments?: Array<string> | null, isAlert: boolean, likes: Array<string>, likeNumber: number, contentSnippet: string, author: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } }> | null, errors?: Array<{ __typename?: 'FieldError', message: string, field: string }> | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null };
 
+export const UserInfoFragmentDoc = gql`
+    fragment userInfo on User {
+  _id
+  email
+  username
+  avatar
+  role
+  likes
+}
+    `;
 export const PostInfoFragmentDoc = gql`
     fragment postInfo on Post {
   title
   content
-  author
   photo
   createdAt
   updatedAt
@@ -387,18 +380,11 @@ export const PostInfoFragmentDoc = gql`
   likes
   likeNumber
   contentSnippet
+  author {
+    ...userInfo
+  }
 }
-    `;
-export const UserInfoFragmentDoc = gql`
-    fragment userInfo on User {
-  _id
-  email
-  username
-  avatar
-  role
-  likes
-}
-    `;
+    ${UserInfoFragmentDoc}`;
 export const ErrorFieldFragmentDoc = gql`
     fragment errorField on FieldError {
   field

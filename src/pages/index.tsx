@@ -11,7 +11,7 @@ import { GetPostsDocument } from '../generated/graphql'
 import { addApolloState, initializeApollo } from '../lib/apolloClient'
 import { useGetPostsQuery } from './../generated/graphql'
 import NextLink from 'next/link'
-import Layout from './../components/Layout';
+import Layout from './../components/Layout'
 
 const Index = () => {
   const { data, loading } = useGetPostsQuery()
@@ -33,12 +33,10 @@ const Index = () => {
                       <Heading fontSize='xl'>{post.title}</Heading>
                     </Link>
                   </NextLink>
-                  <Text> posted by super idol</Text>
+                  <Text> posted by {post.author.username}</Text>
                   <Flex align='center'>
                     <Text mt={4}>{post.contentSnippet}</Text>
-                    <Box ml="auto">
-                      edit button
-                    </Box>
+                    <Box ml='auto'>edit button</Box>
                   </Flex>
                 </Box>
               </Flex>

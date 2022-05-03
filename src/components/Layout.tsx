@@ -8,7 +8,6 @@ interface ILayoutProps {
 }
 
 const Layout: React.FC<ILayoutProps> = (props) => {
-  console.log(props)
   return (
     <>
       <Navbar></Navbar>

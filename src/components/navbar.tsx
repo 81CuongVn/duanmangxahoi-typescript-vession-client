@@ -66,7 +66,7 @@ const Navbar = () => {
       >
         <Box>
           <NextLink href='/'>
-            <Heading>Tên gì nhỉ kệ đi</Heading>
+            <Heading>Web dễ dãi</Heading>
           </NextLink>
         </Box>
         <Box>
