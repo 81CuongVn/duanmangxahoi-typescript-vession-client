@@ -12,6 +12,8 @@ import { addApolloState, initializeApollo } from '../lib/apolloClient'
 import { useGetPostsQuery } from './../generated/graphql'
 import NextLink from 'next/link'
 import Layout from './../components/Layout'
+import PostEditDeleteButton from '../components/PostEditDeleteButton'
+import { GetStaticProps } from 'next'
 
 const Index = () => {
   const { data, loading } = useGetPostsQuery()
@@ -27,16 +29,19 @@ const Index = () => {
           <Stack spacing={8} mt={4}>
             {data?.getPosts?.posts?.map((post) => (
               <Flex key={post._id} p={5} shadow='md' borderWidth='1px'>
-                <Box>
+                <Box flex={1}>
                   <NextLink href={`/post/${post._id}`}>
                     <Link>
                       <Heading fontSize='xl'>{post.title}</Heading>
                     </Link>
+                    
                   </NextLink>
                   <Text> posted by {post.author.username}</Text>
                   <Flex align='center'>
                     <Text mt={4}>{post.contentSnippet}</Text>
-                    <Box ml='auto'>edit button</Box>
+                    <Box ml='auto'>
+                      <PostEditDeleteButton></PostEditDeleteButton>
+                    </Box>
                   </Flex>
                 </Box>
               </Flex>
@@ -49,7 +54,7 @@ const Index = () => {
 }
 
 export default Index
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const apolloClient = initializeApollo()
 
   await apolloClient.query({
