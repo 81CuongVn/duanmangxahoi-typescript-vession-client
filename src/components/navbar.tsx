@@ -4,10 +4,11 @@ import NextLink from 'next/link'
 import {
   MeDocument,
   MeQuery,
+  useGetAppInfoQuery,
   useLogoutMutation,
   useMeQuery,
 } from '../generated/graphql'
-import { useRouter } from 'next/dist/client/router'
+import { useRouter } from 'next/router'
 
 const Navbar = () => {
   const { data, loading: useMeQueryLoading } = useMeQuery()
@@ -16,8 +17,9 @@ const Navbar = () => {
     useLogoutMutation()
   const isInLoginOrRegisterPage =
     router.route === '/login' || router.route == '/register'
+  const { data: AppInfo, loading: GetAppInfoLoading } = useGetAppInfoQuery()
   let body
-  if (useMeQueryLoading) {
+  if (useMeQueryLoading || GetAppInfoLoading) {
     body = null
   } else if (!data?.me) {
     // user is login
@@ -66,7 +68,7 @@ const Navbar = () => {
       >
         <Box>
           <NextLink href='/'>
-            <Heading>Web dễ dãi</Heading>
+            <Heading>{AppInfo?.getAppInfo?.name}</Heading>
           </NextLink>
         </Box>
         <Box>
@@ -74,11 +76,11 @@ const Navbar = () => {
         </Box>
         {data?.me && (
           <Box>
-            <NextLink href='/'>Your Profile</NextLink>
+            <NextLink href='/profile'>Your Profile</NextLink>
           </Box>
         )}
         <Box>
-          <NextLink href='/'>Thông báo</NextLink>
+          <NextLink href='/alert'>Thông báo</NextLink>
         </Box>
         <Box>{body}</Box>
       </Flex>

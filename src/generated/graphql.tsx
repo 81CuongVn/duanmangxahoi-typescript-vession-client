@@ -22,6 +22,12 @@ export type AddRoleForUserInput = {
   userId: Scalars['String'];
 };
 
+export type AppInfo = {
+  __typename?: 'AppInfo';
+  description: Scalars['String'];
+  name: Scalars['String'];
+};
+
 export type Category = {
   __typename?: 'Category';
   _id: Scalars['String'];
@@ -221,6 +227,7 @@ export type Query = {
   GetCategory?: Maybe<CategoryResponse>;
   GetLikeInfo?: Maybe<GetLikeInfoResponse>;
   GetPostByCategory?: Maybe<CreatePostMutationResponse>;
+  getAppInfo?: Maybe<AppInfo>;
   getPostById?: Maybe<GetPostByIdResponse>;
   getPosts?: Maybe<CreatePostMutationResponse>;
   getUserPost?: Maybe<CreatePostMutationResponse>;
@@ -344,6 +351,11 @@ export type RegisterMutationVariables = Exact<{
 
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, user?: { __typename?: 'User', _id: string, email: string, username: string, avatar: string, role: Array<Role>, likes?: Array<string> | null } | null, error?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null } };
+
+export type GetAppInfoQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAppInfoQuery = { __typename?: 'Query', getAppInfo?: { __typename?: 'AppInfo', name: string, description: string } | null };
 
 export type GetPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -571,6 +583,41 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const GetAppInfoDocument = gql`
+    query GetAppInfo {
+  getAppInfo {
+    name
+    description
+  }
+}
+    `;
+
+/**
+ * __useGetAppInfoQuery__
+ *
+ * To run a query within a React component, call `useGetAppInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAppInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAppInfoQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAppInfoQuery(baseOptions?: Apollo.QueryHookOptions<GetAppInfoQuery, GetAppInfoQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAppInfoQuery, GetAppInfoQueryVariables>(GetAppInfoDocument, options);
+      }
+export function useGetAppInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAppInfoQuery, GetAppInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAppInfoQuery, GetAppInfoQueryVariables>(GetAppInfoDocument, options);
+        }
+export type GetAppInfoQueryHookResult = ReturnType<typeof useGetAppInfoQuery>;
+export type GetAppInfoLazyQueryHookResult = ReturnType<typeof useGetAppInfoLazyQuery>;
+export type GetAppInfoQueryResult = Apollo.QueryResult<GetAppInfoQuery, GetAppInfoQueryVariables>;
 export const GetPostsDocument = gql`
     query GetPosts {
   getPosts {
