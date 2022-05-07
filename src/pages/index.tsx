@@ -12,7 +12,7 @@ import { addApolloState, initializeApollo } from '../lib/apolloClient'
 import { useGetPostsQuery } from './../generated/graphql'
 import NextLink from 'next/link'
 import Layout from './../components/Layout'
-import PostEditDeleteButton from '../components/PostEditDeleteButton/PostEditDeleteButton'
+import PostEditDeleteButton from '../components/PostEditDeleteButton'
 import { GetStaticProps } from 'next'
 import { useCheckUserIsAdmin } from '../util/useCheckUserIsAdmin'
 
