@@ -12,7 +12,7 @@ import { addApolloState, initializeApollo } from '../lib/apolloClient'
 import { useGetPostsQuery } from './../generated/graphql'
 import NextLink from 'next/link'
 import Layout from './../components/Layout'
-import PostEditDeleteButton from '../components/PostEditDeleteButton'
+import PostEditDeleteButton from '../components/PostEditDeleteButton/PostEditDeleteButton'
 import { GetStaticProps } from 'next'
 import { useCheckUserIsAdmin } from '../util/useCheckUserIsAdmin'
 
@@ -22,7 +22,7 @@ const Index = () => {
 
   return (
     <Layout WrapperSize='regular'>
-      {loading ? (
+      {loading  && useMeQueryLoading  ? (
         <Flex justifyContent='center' alignItems='center' minH='100vh'>
           <Spinner />
         </Flex>
@@ -41,10 +41,10 @@ const Index = () => {
                   <Flex align='center'>
                     <Text mt={4}>{post.contentSnippet}</Text>
                     <Box ml='auto'>
-                      {Me?.me?._id == post.author._id ||
-                        useCheckUserIsAdmin() && (
-                          <PostEditDeleteButton></PostEditDeleteButton>
-                        ))}
+                      {(Me?.me?._id == post.author._id ||
+                        useCheckUserIsAdmin(Me)) && (
+                        <PostEditDeleteButton></PostEditDeleteButton>
+                      )}
                     </Box>
                   </Flex>
                 </Box>

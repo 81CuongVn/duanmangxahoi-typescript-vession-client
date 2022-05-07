@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Link, Spinner } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import {
   MeDocument,
@@ -20,7 +20,12 @@ const Navbar = () => {
   const { data: AppInfo, loading: GetAppInfoLoading } = useGetAppInfoQuery()
   let body
   if (useMeQueryLoading || GetAppInfoLoading) {
-    body = null
+    // body = null
+    return (
+      <Flex justifyContent='center' alignItems='center' minH='100vh'>
+        <Spinner />
+      </Flex>
+    )
   } else if (!data?.me) {
     // user is login
     if (!isInLoginOrRegisterPage)
